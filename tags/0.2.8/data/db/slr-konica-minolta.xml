@@ -1,0 +1,147 @@
+<lensdatabase>
+
+    <mount>
+        <name>Minolta AF</name>
+        <compat>M42</compat>
+        <compat>T2</compat>
+        <compat>Sony Alpha</compat>
+        <compat>Generic</compat>
+    </mount>
+
+    <mount>
+        <name>Minolta MC</name>
+        <compat>M42</compat>
+        <compat>T2</compat>
+	<compat>Generic</compat>
+    </mount>
+
+    <camera>
+        <maker>KONICA MINOLTA</maker>
+        <maker lang="en">Konica Minolta</maker>
+        <model>MAXXUM 5D</model>
+        <model lang="en">Maxxum 5D</model>
+        <mount>Minolta AF</mount>
+        <cropfactor>1.5</cropfactor>
+    </camera>
+
+    <camera>
+        <maker>KONICA MINOLTA</maker>
+        <maker lang="en">Konica Minolta</maker>
+        <model>DYNAX 5D</model>
+        <model lang="en">Dynax 5D</model>
+        <mount>Minolta AF</mount>
+        <cropfactor>1.5</cropfactor>
+    </camera>
+
+    <camera>
+        <maker>KONICA MINOLTA</maker>
+        <maker lang="en">Konica Minolta</maker>
+        <model>MAXXUM 7D</model>
+        <model lang="en">Maxxum 7D</model>
+        <mount>Minolta AF</mount>
+        <cropfactor>1.5</cropfactor>
+    </camera>
+
+    <camera>
+        <maker>KONICA MINOLTA</maker>
+        <maker lang="en">Konica Minolta</maker>
+        <model>DYNAX 7D</model>
+        <model lang="en">Dynax 7D</model>
+        <mount>Minolta AF</mount>
+        <cropfactor>1.5</cropfactor>
+    </camera>
+
+    <lens>
+        <maker>Konica Minolta</maker>
+        <model>KM 24-105mm 3.5-4.5 AF D</model>
+        <mount>Minolta AF</mount>
+        <cropfactor>1.5</cropfactor>
+        <calibration>
+            <distortion model="ptlens" focal="24" a="0.004504" b="-0.01756" c="0" />
+            <distortion model="ptlens" focal="28" a="0" b="-0.001188" c="0" />
+            <distortion model="ptlens" focal="30" a="0" b="0.001378" c="0" />
+            <distortion model="ptlens" focal="40" a="0" b="0.003241" c="0" />
+            <distortion model="ptlens" focal="60" a="0" b="0.003895" c="0" />
+            <distortion model="ptlens" focal="70" a="0" b="0.005226" c="0" />
+            <distortion model="ptlens" focal="80" a="0" b="0.005343" c="0" />
+            <distortion model="ptlens" focal="90" a="0" b="0.005201" c="0" />
+            <distortion model="ptlens" focal="105" a="0" b="0.005796" c="0" />
+        </calibration>
+    </lens>
+
+    <lens>
+        <maker>Konica Minolta</maker>
+        <model>KM 28-100mm 3.5-5.6 AF D</model>
+        <mount>Minolta AF</mount>
+        <cropfactor>1.5</cropfactor>
+        <calibration>
+            <distortion model="ptlens" focal="28" a="0.005155" b="-0.020044" c="0" />
+            <distortion model="ptlens" focal="35" a="0.005248" b="-0.012857" c="0" />
+            <distortion model="ptlens" focal="40" a="0" b="-0.000766" c="0" />
+            <distortion model="ptlens" focal="50" a="0" b="0.001775" c="0" />
+            <distortion model="ptlens" focal="60" a="0" b="0.002973" c="0" />
+            <distortion model="ptlens" focal="100" a="0" b="0.002931" c="0" />
+        </calibration>
+    </lens>
+
+    <lens>
+        <maker>Konica Minolta</maker>
+        <model>KM 80-200mm 2.8</model>
+        <mount>Minolta AF</mount>
+        <cropfactor>1.5</cropfactor>
+        <calibration>
+            <distortion model="ptlens" focal="80" a="0" b="-0.004374" c="0" />
+            <distortion model="ptlens" focal="90" a="0" b="-0.002544" c="0" />
+            <distortion model="ptlens" focal="100" a="0" b="-0.000886" c="0" />
+            <distortion model="ptlens" focal="110" a="0" b="0" c="0" />
+            <distortion model="ptlens" focal="135" a="0" b="0.001336" c="0" />
+            <distortion model="ptlens" focal="150" a="0" b="0.002115" c="0" />
+            <distortion model="ptlens" focal="180" a="0" b="0.00279" c="0" />
+            <distortion model="ptlens" focal="200" a="0" b="0.001971" c="0" />
+        </calibration>
+    </lens>
+
+    <lens>
+        <maker>Konica Minolta</maker>
+        <model>KM 20mm 2.8</model>
+        <mount>Minolta AF</mount>
+        <cropfactor>1.5</cropfactor>
+        <calibration>
+            <distortion model="ptlens" focal="20" a="0.005548" b="-0.022552" c="0" />
+        </calibration>
+    </lens>
+
+    <lens>
+        <maker>Minolta</maker>
+        <model>Minolta MC Rokkor-PG 50mm 1:1.4</model>
+	    <focal value="50" />
+	    <aperture min="1.4" max="16"/>
+        <mount>Minolta MC</mount>
+        <cropfactor>2.0</cropfactor>
+        <calibration>
+            <distortion model="ptlens" focal="50" a="-0.000767655" b="-0.000599186" c="-0.00129564" />
+            <tca model="poly3" focal="50" br="-0.0000228" vr="1.0001644" bb="0.0000253" vb="0.9999662" />
+            <vignetting model="pa" focal="50" aperture="1.4" distance="0.5" k1="-0.3237" k2="-0.0259" k3="0.0674" />
+            <vignetting model="pa" focal="50" aperture="1.4" distance="1" k1="-0.5441" k2="0.3605" k3="-0.1449" />
+            <vignetting model="pa" focal="50" aperture="1.4" distance="5" k1="-0.6492" k2="0.5567" k3="-0.2587" />
+            <vignetting model="pa" focal="50" aperture="1.4" distance="1000" k1="-0.6618" k2="0.5776" k3="-0.2716" />
+            <vignetting model="pa" focal="50" aperture="2" distance="0.5" k1="-0.0745" k2="0.0154" k3="-0.0235" />
+            <vignetting model="pa" focal="50" aperture="2" distance="1" k1="-0.0841" k2="0.0065" k3="-0.0149" />
+            <vignetting model="pa" focal="50" aperture="2" distance="5" k1="-0.0960" k2="0.0202" k3="-0.0271" />
+            <vignetting model="pa" focal="50" aperture="2" distance="1000" k1="-0.0951" k2="0.0091" k3="-0.0168" />
+            <vignetting model="pa" focal="50" aperture="2.8" distance="0.5" k1="-0.0815" k2="0.0216" k3="-0.0162" />
+            <vignetting model="pa" focal="50" aperture="2.8" distance="1" k1="-0.0896" k2="0.0113" k3="-0.0080" />
+            <vignetting model="pa" focal="50" aperture="2.8" distance="5" k1="-0.1024" k2="0.0179" k3="-0.0097" />
+            <vignetting model="pa" focal="50" aperture="2.8" distance="1000" k1="-0.1016" k2="0.0095" k3="-0.0039" />
+            <vignetting model="pa" focal="50" aperture="4" distance="0.5" k1="-0.0775" k2="0.0023" k3="0.0004" />
+            <vignetting model="pa" focal="50" aperture="4" distance="1" k1="-0.0974" k2="0.0184" k3="-0.0079" />
+            <vignetting model="pa" focal="50" aperture="4" distance="5" k1="-0.1077" k2="0.0272" k3="-0.0133" />
+            <vignetting model="pa" focal="50" aperture="4" distance="1000" k1="-0.1162" k2="0.0261" k3="-0.0105" />
+            <vignetting model="pa" focal="50" aperture="16" distance="0.5" k1="-0.1133" k2="0.0437" k3="-0.0170" />
+            <vignetting model="pa" focal="50" aperture="16" distance="1" k1="-0.1576" k2="0.0858" k3="-0.0295" />
+            <vignetting model="pa" focal="50" aperture="16" distance="5" k1="-0.1854" k2="0.1322" k3="-0.0545" />
+            <vignetting model="pa" focal="50" aperture="16" distance="1000" k1="-0.2034" k2="0.1667" k3="-0.0748" />
+        </calibration>
+    </lens>
+
+</lensdatabase>
