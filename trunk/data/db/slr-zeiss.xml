@@ -17,7 +17,7 @@
         <!-- Also update copy at "Carl Zeiss Distagon T* 2,8/21 ZF.2" above. -->
         <maker>Zeiss</maker>
         <model>Carl Zeiss Distagon T* 2,8/21 ZE</model>
-        <name>Canon EF</name>
+        <mount>Canon EF</mount>
         <cropfactor>1.0</cropfactor>
         <calibration>
             <distortion model="ptlens" focal="21" a="0.03083" b="-0.0633" c="0.01093" />
