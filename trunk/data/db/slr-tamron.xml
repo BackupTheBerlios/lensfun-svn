@@ -90,6 +90,28 @@
 
     <lens>
         <maker>Tamron</maker>
+        <model>Tamron 18-200mm f/3.5-6.3 XR Di II LD</model>
+        <mount>Canon EF</mount>
+        <mount>Nikon F AF</mount>
+        <mount>Pentax KAF</mount>
+        <mount>Sony Alpha</mount>
+        <cropfactor>1.6</cropfactor>
+        <calibration>
+            <distortion model="ptlens" focal="18" a="0.01757" b="-0.052885" c="0" />
+            <distortion model="ptlens" focal="25" a="0.007578" b="-0.014077" c="0" />
+            <distortion model="ptlens" focal="31" a="0.004963" b="-0.001934" c="0" />
+            <distortion model="ptlens" focal="38" a="0" b="0.010127" c="0" />
+            <distortion model="ptlens" focal="54" a="0" b="0.010971" c="0" />
+            <distortion model="ptlens" focal="73" a="0" b="0.010296" c="0" />
+            <distortion model="ptlens" focal="102" a="0" b="0.008059" c="0" />
+            <distortion model="ptlens" focal="125" a="0" b="0.007314" c="0" />
+            <distortion model="ptlens" focal="149" a="0" b="0.007285" c="0" />
+            <distortion model="ptlens" focal="200" a="0" b="0.005942" c="0" />
+        </calibration>
+    </lens>
+
+    <lens>
+        <maker>Tamron</maker>
         <model>Tamron AF 18-250mm f/3.5-6.3 Di II LD Aspherical IF Macro</model>
         <mount>Canon EF</mount>
         <mount>Nikon F AF</mount>
