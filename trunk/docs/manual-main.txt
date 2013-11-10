@@ -275,10 +275,10 @@ Possible embedded elements:
     "equirectangular", "orthographic", "stereographic", "equisolid", "fisheye_thoby".
 <dt>\<focal min="number" max="number" value="number" /\>
 <dd>Lens focal length in mm. This can be either a single value for a fixed-focal length
-    lens, or a "min-max" range in the case of a zoom lens.
+    lens, or a minimum and maximum value in the case of a zoom lens.
 <dt>\<aperture min="number" max="number" value="number" /\>
-<dd>Lens aperture as the f-number. This can be either a single value for a fixed-aperture
-    lens, or a "min-max" range in the case of a normal lens.
+<dd>Lens aperture as the f-number. This can be either a single value for a fixed-focal length
+    lens, or the aperture at the minimum and maximum focal length in the case of a zoom lens.
 <dt>\<mount\>string\</mount\>
 <dd>Lens mount. There can be multiple \<mount\> entries if the same lens is manufactured
     with several mounts, or it has a variable mount (e.g. Tamron Adaptall).
@@ -630,3 +630,4 @@ Library testbed. This program can access most library functionality.
 \page cc-by-ca Creative Commons Attribution-Share Alike 3.0 Unported
 \verbinclude cc-by-sa-3.0.txt
 */
+

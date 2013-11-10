@@ -972,7 +972,7 @@ struct LF_EXPORT lfLens
      * @param aperture
      *     The aperture (f-number) for which we need vignetting parameters.
      * @param distance
-     *     The focus distance in meters for which we need vignetting parameters.
+     *     The focus distance in meters (distance > 1)for which we need vignetting parameters.
      * @param res
      *     The resulting interpolated model.
      */
@@ -1739,10 +1739,10 @@ struct LF_EXPORT lfModifier
      * proper rectification.
      *
      * Aperture and focus distance are only used for vignetting
-     * correction.  Because the dependence of vignetting on focus
+     * correction. Because the dependence of vignetting on focus
      * distance is very small, and it is usually not available in EXIF
      * data, you may give an approximative value here.  If you really
-     * do not know, as a last resort, pass the value "1000".
+     * do not know, as a last resort, use "1000" as a default value.
      * @param lens
      *     The lens which aberrations you want to correct in a image.
      * @param format
@@ -1752,7 +1752,7 @@ struct LF_EXPORT lfModifier
      * @param aperture
      *     The aperture (f-number) at which the image was taken.
      * @param distance
-     *     The approximative focus distance in meters.
+     *     The approximative focus distance in meters (distance > 1).
      * @param scale
      *     An additional scale factor to be applied onto the image
      *     (1.0 - no scaling; 0.0 - automatic scaling).
