@@ -972,7 +972,8 @@ struct LF_EXPORT lfLens
      * @param aperture
      *     The aperture (f-number) for which we need vignetting parameters.
      * @param distance
-     *     The focus distance in meters (distance > 1)for which we need vignetting parameters.
+     *     The focus distance in meters (distance > 0) for which we need
+     *     vignetting parameters.
      * @param res
      *     The resulting interpolated model.
      */
@@ -1752,7 +1753,7 @@ struct LF_EXPORT lfModifier
      * @param aperture
      *     The aperture (f-number) at which the image was taken.
      * @param distance
-     *     The approximative focus distance in meters (distance > 1).
+     *     The approximative focus distance in meters (distance > 0).
      * @param scale
      *     An additional scale factor to be applied onto the image
      *     (1.0 - no scaling; 0.0 - automatic scaling).
