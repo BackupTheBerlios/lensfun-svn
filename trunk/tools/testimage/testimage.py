@@ -11,11 +11,10 @@ External dependencies: Python version 3, ImageMagick, exiv2.
 
 The program takes the lens parameters from LensFun's database.  To the usual
 search path it adds the current path (the xml files of which would override
-those found in the usual locations).  It assumes an apect ratio of 3:2 for the
-lens calibration.
+those found in the usual locations).
 
-As for the used camera, it takes the crop factor from the database.  For the
-aspect ratio, it also assumes 3:2.
+As for the used camera, it takes the crop factor from the database.  The aspect
+ratio needs to be provided on the command line.
 
 It is sensible to read the help output of this program (the --help option).
 
@@ -70,14 +69,10 @@ The following things are particularly interesting to check:
 
     Classical case: Calibration with APS-C, but to-be-corrected image taken
     with a Four-Thirds sensor.
-
-
-Todos:
-
-- Support for non-rectilinear lens types
 """
 
 import array, subprocess, math, os, argparse, sys
+from math import sin, tan, atan, floor, ceil, sqrt
 from xml.etree import ElementTree
 
 
@@ -171,37 +166,38 @@ def get_float_attribute(element, attribute_name, default=0):
     except KeyError:
         return default
 
-full_frame_diagonal = math.sqrt(36**2 + 24**2)
-
 def get_projection_function():
-    scaling = full_frame_diagonal / camera_cropfactor / focal_length
-    def projection(r_vignetting):
-        return math.atan(r_vignetting * scaling)
-    lens_type = lens_element.get("type", "rectilinear")
+    def projection(ϑ):
+        return tan(ϑ)
+    try:
+        lens_type = lens_element.find("type").text
+    except AttributeError:
+        lens_type = "rectilinear"
     if lens_type == "stereographic":
-        def projection(r_vignetting):
-            return 2 * math.atan(r_vignetting * scaling / 2)
+        def projection(ϑ):
+            return 2 * tan(ϑ / 2)
     elif lens_type == "fisheye":
-        def projection(r_vignetting):
-            return r_vignetting * scaling
+        def projection(ϑ):
+            return ϑ
     elif lens_type == "panoramic":
         assert False, "Panoramic lenses are not yet supported."
     elif lens_type == "equirectangular":
         assert False, "Equirectangular lenses are not yet supported."
     elif lens_type == "orthographic":
-        def projection(r_vignetting):
-            return math.asin(r_vignetting * scaling)
+        def projection(ϑ):
+            return sin(ϑ)
     elif lens_type == "equisolid":
-        def projection(r_vignetting):
-            return 2 * math.asin(r_vignetting * scaling / 2)
+        def projection(ϑ):
+            return 2 * sin(ϑ / 2)
     elif lens_type == "fisheye_thoby":
-        assert False, "Thoby fisheye lenses are not yet supported."
+        def projection(ϑ):
+            return 1.47 * sin(0.713 * ϑ)
     return projection
 projection = get_projection_function()
     
 def get_distortion_function():
     def distortion(r):
-        return 1
+        return r
     if distortion_element is not None:
         model = distortion_element.attrib["model"]
         if model == "ptlens":
@@ -217,7 +213,7 @@ def get_distortion_function():
         elif model == "fov1":
             ω = get_float_attribute(distortion_element, "omega")
             def distortion(r):
-                return math.tan(r * ω) / (2 * tan(ω / 2))
+                return tan(r * ω) / (2 * tan(ω / 2))
         elif model == "poly5":
             k1 = get_float_attribute(distortion_element, "k1")
             k2 = get_float_attribute(distortion_element, "k2")
@@ -228,9 +224,9 @@ distortion = get_distortion_function()
 
 def get_tca_functions():
     def tca_red(r):
-        return 1
+        return r
     def tca_blue(r):
-        return 1
+        return r
     if tca_element is not None:
         model = tca_element.attrib["model"]
         if model == "linear":
@@ -276,12 +272,19 @@ class Image:
         self.pixels = array.array("H", width * height * 3 * [16383])
         self.width = width
         self.height = height
-        self._half_height = height / 2
-        self._half_width = width / 2
-        self._half_diagonal = math.sqrt(width**2 + height**2) / 2
+        self.half_height = height / 2
+        self.half_width = width / 2
+        self.half_diagonal = sqrt(width**2 + height**2) / 2
         aspect_ratio = width / height
-        aspect_ratio_correction = math.sqrt((lens_aspect_ratio**2 + 1) / (aspect_ratio**2 + 1))
-        self.ar_plus_cf_correction = aspect_ratio_correction * R_cf
+        
+        # This factor transforms from the vignetting cooredinate system of the
+        # to-be-corrected sensor to its distortion coordinate system.
+        self.aspect_ratio_correction = sqrt(aspect_ratio**2 + 1)
+        
+        # This factor transforms from the distortion coordinate system of the
+        # to-be-corrected sensor to the distortion coordinate system of the
+        # calibration sensor.
+        self.ar_plus_cf_correction = (1 / self.aspect_ratio_correction) * R_cf * sqrt(lens_aspect_ratio**2 + 1)
 
     def add_to_pixel(self, x, y, weighting, red, green, blue):
         """Adds the given brightness (from 0 to 1) to the pixel at the position x, y.
@@ -298,12 +301,15 @@ class Image:
 
     def add_to_position(self, x, y, red, green, blue):
         """Adds the given brightness (from 0 to 1) to the pixel at the position x, y.
-        The special bit here is that x and y are floats.
+        x = y = 0 is the image centre.  The special bit here is that x and y
+        are floats.
         """
-        floor_x = int(math.floor(x))
-        floor_y = int(math.floor(y))
-        ceil_x = int(math.ceil(x)) if x != floor_x else int(x) + 1
-        ceil_y = int(math.ceil(y)) if y != floor_y else int(y) + 1
+        x += self.half_width
+        y += self.half_height
+        floor_x = int(floor(x))
+        floor_y = int(floor(y))
+        ceil_x = int(ceil(x)) if x != floor_x else int(x) + 1
+        ceil_y = int(ceil(y)) if y != floor_y else int(y) + 1
         self.add_to_pixel(floor_x, floor_y, (ceil_x - x) * (ceil_y - y), red, green, blue)
         self.add_to_pixel(floor_x, ceil_y, (ceil_x - x) * (y - floor_y), red, green, blue)
         self.add_to_pixel(ceil_x, floor_y, (x - floor_x) * (ceil_y - y), red, green, blue)
@@ -313,9 +319,9 @@ class Image:
         """Returns the r coordinate to x, y, for vignetting, i.e. r = 1 is
         half-diagonal.
         """
-        x = (x - self._half_width) / self._half_diagonal
-        y = (y - self._half_height) / self._half_diagonal
-        return math.sqrt(x**2 + y**2) * R_cf
+        x = (x - self.half_width) / self.half_diagonal
+        y = (y - self.half_height) / self.half_diagonal
+        return sqrt(x**2 + y**2) * R_cf
 
     def set_vignetting(self, function):
         for y in range(self.height):
@@ -361,25 +367,34 @@ class Image:
                              "-Mset Exif.Photo.SubjectDistance {}/10".format(int(distance * 10)),
                              "-Mset Exif.Photo.LensModel {}".format(lens_model_name),
                              "-Mset Exif.Image.Model {}".format(camera_model_name),
+                             "-Mset Exif.Image.Make {}".format(camera_element.find("maker").text),
                              filepath])
 
-    def create_grid(self, distortion, tca_red, tca_blue):
+    def create_grid(self, distortion, projection, tca_red, tca_blue):
+        full_frame_diagonal = sqrt(36**2 + 24**2)
+        diagonal_by_focal_length = full_frame_diagonal / 2 / camera_cropfactor / focal_length
+        def apply_lens_projection(x, y):
+            r_vignetting = sqrt(x**2 + y**2) / self.aspect_ratio_correction
+            ϑ = atan(r_vignetting * diagonal_by_focal_length)
+            scaling = (projection(ϑ) / diagonal_by_focal_length) / r_vignetting
+            return x * scaling, y * scaling
         line_brightness = 0.4
         def set_pixel(x, y):
             """y goes from -1 to 1, x domain depends on aspect ratio."""
-            r = math.sqrt(x**2 + y**2) * self.ar_plus_cf_correction
-            if r == 0:
-                self.add_to_position(self._half_width, self._half_height, 1, 1, 1)
+            if x == y == 0:
+                self.add_to_position(0, 0, 1, 1, 1)
             else:
+                x, y = apply_lens_projection(x, y)
+                r = sqrt(x**2 + y**2) * self.ar_plus_cf_correction
                 r_distorted = distortion(r)
-                scaling = (r_distorted / r) * self._half_height / R_cf
-                self.add_to_position(x * scaling + self._half_width, y * scaling + self._half_height, 0, line_brightness, 0)
-                scaling = tca_red(r_distorted) / r_distorted * (r_distorted / r) * self._half_height / R_cf
-                self.add_to_position(x * scaling + self._half_width, y * scaling + self._half_height, line_brightness, 0, 0)
-                scaling = tca_blue(r_distorted) / r_distorted * (r_distorted / r) * self._half_height / R_cf
-                self.add_to_position(x * scaling + self._half_width, y * scaling + self._half_height, 0, 0, line_brightness)
+                scaling = (r_distorted / r) * self.half_height / R_cf
+                self.add_to_position(x * scaling, y * scaling, 0, line_brightness, 0)
+                scaling = tca_red(r_distorted) / r_distorted * (r_distorted / r) * self.half_height / R_cf
+                self.add_to_position(x * scaling, y * scaling, line_brightness, 0, 0)
+                scaling = tca_blue(r_distorted) / r_distorted * (r_distorted / r) * self.half_height / R_cf
+                self.add_to_position(x * scaling, y * scaling, 0, 0, line_brightness)
         number_of_lines = 30
-        for i in range(number_of_lines):
+        for i in range(number_of_lines + 1):
             points_per_line = self.width
             y = i * (2 / number_of_lines) - 1
             for j in range(points_per_line):
@@ -387,13 +402,13 @@ class Image:
                 set_pixel(x, y)
             points_per_line = self.height
             x = i * (2 * lens_aspect_ratio / number_of_lines) - lens_aspect_ratio
-            for j in range(points_per_line):
+            for j in range(points_per_line + 1):
                 y = j * (2 / points_per_line) - 1
                 set_pixel(x, y)
 
 
 image = Image(width, int(width / aspect_ratio))
-image.create_grid(distortion, tca_red, tca_blue)
+image.create_grid(distortion, projection, tca_red, tca_blue)
 if args.vignetting:
     image.set_vignetting(vignetting)
 if portrait:
