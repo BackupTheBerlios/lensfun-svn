@@ -69,6 +69,18 @@ The following things are particularly interesting to check:
 
     Classical case: Calibration with APS-C, but to-be-corrected image taken
     with a Four-Thirds sensor.
+
+5. An insanely small calibration sensor must not affect pure geometry
+   transformation.
+
+    I sumbled upon this one accidentally.  If the cropfactor of the <lens> tag
+    is very large, e.g. 10 or 100, a correction is rejected because the
+    to-be-corrected sensor is larger (much larger actually).  However, one can
+    use at least convert from fisheye to rectilinear, where the cropfactor of
+    the calibration sensor should not matter.  Due to ``size - 1`` occurences
+    in modifier.cpp (a little bit suspicious, by the way), strange things
+    happened.
+
 """
 
 import array, subprocess, math, os, argparse, sys
@@ -119,18 +131,19 @@ def get_database_elements():
                                       "read XML files.  Please use another lens.")
                                 sys.exit(1)
                             lens_element = element
-                            for calibration_element in element.find("calibration"):
-                                if calibration_element.tag == "distortion" and \
-                                   float(calibration_element.attrib["focal"]) == focal_length:
-                                    distortion_element = calibration_element
-                                elif calibration_element.tag == "tca" and \
-                                   float(calibration_element.attrib["focal"]) == focal_length:
-                                    tca_element = calibration_element
-                                elif calibration_element.tag == "vignetting" and \
-                                   float(calibration_element.attrib["focal"]) == focal_length and \
-                                   float(calibration_element.attrib["aperture"]) == aperture and \
-                                   float(calibration_element.attrib["distance"]) == distance:
-                                    vignetting_element = calibration_element
+                            if element.find("calibration") is not None:
+                                for calibration_element in element.find("calibration"):
+                                    if calibration_element.tag == "distortion" and \
+                                       float(calibration_element.attrib["focal"]) == focal_length:
+                                        distortion_element = calibration_element
+                                    elif calibration_element.tag == "tca" and \
+                                       float(calibration_element.attrib["focal"]) == focal_length:
+                                        tca_element = calibration_element
+                                    elif calibration_element.tag == "vignetting" and \
+                                       float(calibration_element.attrib["focal"]) == focal_length and \
+                                       float(calibration_element.attrib["aperture"]) == aperture and \
+                                       float(calibration_element.attrib["distance"]) == distance:
+                                        vignetting_element = calibration_element
     for path in [".", os.path.expanduser("~/.local/share/lensfun"), "/usr/share/lensfun", "/usr/local/share/lensfun"]:
         crawl_directory(path)
     if lens_element is None:
@@ -167,8 +180,7 @@ def get_float_attribute(element, attribute_name, default=0):
         return default
 
 def get_projection_function():
-    def projection(ϑ):
-        return tan(ϑ)
+    projection = None
     try:
         lens_type = lens_element.find("type").text
     except AttributeError:
@@ -384,14 +396,15 @@ class Image:
             if x == y == 0:
                 self.add_to_position(0, 0, 1, 1, 1)
             else:
-                x, y = apply_lens_projection(x, y)
+                if projection:
+                    x, y = apply_lens_projection(x, y)
                 r = sqrt(x**2 + y**2) * self.ar_plus_cf_correction
                 r_distorted = distortion(r)
-                scaling = (r_distorted / r) * self.half_height / R_cf
+                scaling = (r_distorted / r) * self.half_height
                 self.add_to_position(x * scaling, y * scaling, 0, line_brightness, 0)
-                scaling = tca_red(r_distorted) / r_distorted * (r_distorted / r) * self.half_height / R_cf
+                scaling = tca_red(r_distorted) / r_distorted * (r_distorted / r) * self.half_height
                 self.add_to_position(x * scaling, y * scaling, line_brightness, 0, 0)
-                scaling = tca_blue(r_distorted) / r_distorted * (r_distorted / r) * self.half_height / R_cf
+                scaling = tca_blue(r_distorted) / r_distorted * (r_distorted / r) * self.half_height
                 self.add_to_position(x * scaling, y * scaling, 0, 0, line_brightness)
         number_of_lines = 30
         for i in range(number_of_lines + 1):
