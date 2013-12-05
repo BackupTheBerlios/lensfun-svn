@@ -73,13 +73,13 @@ The following things are particularly interesting to check:
 5. An insanely small calibration sensor must not affect pure geometry
    transformation.
 
-    I sumbled upon this one accidentally.  If the cropfactor of the <lens> tag
+    I stumbled upon this one accidentally.  If the cropfactor of the <lens> tag
     is very large, e.g. 10 or 100, a correction is rejected because the
     to-be-corrected sensor is larger (much larger actually).  However, one can
     use at least convert from fisheye to rectilinear, where the cropfactor of
     the calibration sensor should not matter.  Due to ``size - 1`` occurences
-    in modifier.cpp (a little bit suspicious, by the way), strange things
-    happened.
+    in modifier.cpp, strange things happened, because the ``size`` didn't refer
+    to pixel size at this point.
 
 """
 
@@ -160,6 +160,11 @@ lens_element, camera_element, distortion_element, vignetting_element, tca_elemen
 camera_cropfactor = float(camera_element.find("cropfactor").text)
 lens_cropfactor = float(lens_element.find("cropfactor").text)
 R_cf = lens_cropfactor / camera_cropfactor
+if lens_element.find("center") is not None:
+    center_x = float(lens_element.find("center").get("x", "0"))
+    center_y = float(lens_element.find("center").get("y", "0"))
+else:
+    center_x = center_y = 0
 
 def get_lens_aspect_ratio(lens_element):
     try:
@@ -287,7 +292,7 @@ class Image:
         self.half_height = height / 2
         self.half_width = width / 2
         self.half_diagonal = sqrt(width**2 + height**2) / 2
-        aspect_ratio = width / height
+        self.pixel_scaling = (self.height - 1) / 2
         
         # This factor transforms from the vignetting cooredinate system of the
         # to-be-corrected sensor to its distortion coordinate system.
@@ -314,10 +319,11 @@ class Image:
     def add_to_position(self, x, y, red, green, blue):
         """Adds the given brightness (from 0 to 1) to the pixel at the position x, y.
         x = y = 0 is the image centre.  The special bit here is that x and y
-        are floats.
+        are floats in the relative Hugin distortion coordinate system, and
+        bilinear interpolation is performed.
         """
-        x += self.half_width
-        y += self.half_height
+        x = (x + aspect_ratio + center_x) * self.pixel_scaling
+        y = (y + 1 + center_y) * self.pixel_scaling
         floor_x = int(floor(x))
         floor_y = int(floor(y))
         ceil_x = int(ceil(x)) if x != floor_x else int(x) + 1
@@ -328,12 +334,12 @@ class Image:
         self.add_to_pixel(ceil_x, ceil_y, (x - floor_x) * (y - floor_y), red, green, blue)
 
     def r_vignetting(self, x, y):
-        """Returns the r coordinate to x, y, for vignetting, i.e. r = 1 is
-        half-diagonal.
+        """Returns the r coordinate in the calibration coordinate system to the pixel
+        coordinates (x, y) for vignetting, i.e. r = 1 is half-diagonal.
         """
-        x = (x - self.half_width) / self.half_diagonal
-        y = (y - self.half_height) / self.half_diagonal
-        return sqrt(x**2 + y**2) * R_cf
+        x = x / self.pixel_scaling - aspect_ratio - center_x
+        y = y / self.pixel_scaling - 1 - center_y
+        return sqrt(x**2 + y**2) / self.aspect_ratio_correction * R_cf
 
     def set_vignetting(self, function):
         for y in range(self.height):
@@ -396,16 +402,23 @@ class Image:
             if x == y == 0:
                 self.add_to_position(0, 0, 1, 1, 1)
             else:
+                # 1. Lens projection (fisheye etc)
                 if projection:
                     x, y = apply_lens_projection(x, y)
+
+                # 2. Distortion on top of that
                 r = sqrt(x**2 + y**2) * self.ar_plus_cf_correction
                 r_distorted = distortion(r)
-                scaling = (r_distorted / r) * self.half_height
-                self.add_to_position(x * scaling, y * scaling, 0, line_brightness, 0)
-                scaling = tca_red(r_distorted) / r_distorted * (r_distorted / r) * self.half_height
-                self.add_to_position(x * scaling, y * scaling, line_brightness, 0, 0)
-                scaling = tca_blue(r_distorted) / r_distorted * (r_distorted / r) * self.half_height
-                self.add_to_position(x * scaling, y * scaling, 0, 0, line_brightness)
+                distortion_scaling = r_distorted / r
+                x *= distortion_scaling
+                y *= distortion_scaling
+                self.add_to_position(x, y, 0, line_brightness, 0)
+
+                # 3. TCA of red and blue channels on top of that
+                tca_scaling = tca_red(r_distorted) / r_distorted
+                self.add_to_position(x * tca_scaling, y * tca_scaling, line_brightness, 0, 0)
+                tca_scaling = tca_blue(r_distorted) / r_distorted
+                self.add_to_position(x * tca_scaling, y * tca_scaling, 0, 0, line_brightness)
         number_of_lines = 30
         for i in range(number_of_lines + 1):
             points_per_line = self.width
@@ -420,7 +433,7 @@ class Image:
                 set_pixel(x, y)
 
 
-image = Image(width, int(width / aspect_ratio))
+image = Image(width, int(round(width / aspect_ratio)))
 image.create_grid(distortion, projection, tca_red, tca_blue)
 if args.vignetting:
     image.set_vignetting(vignetting)
