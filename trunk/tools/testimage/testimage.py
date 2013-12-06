@@ -42,27 +42,12 @@ The following things are particularly interesting to check:
 3. If he crop factor of the camera does not match the one of the calibration,
    it must work nevertheless.
 
-    This is a tricky one.  If you have a sensor smaller than the one used for
-    calibration, this program testimage.py has an easy job: It just has to use
-    the corresponsing inner part of the resulting picture.
+    If you have a sensor smaller than the one used for calibration, this
+    program testimage.py has an easy job: It just has to use the corresponsing
+    inner part of the resulting picture.
 
     However, for LensFun, it is more difficult because it works on the
-    destination image.  Thus, cropping this image by the crop factor may lead
-    to a wrong scaling of the distortion field relatively to the image.
-
-    Let the distortion function be D(r).
-
-    There are two coordinate systems, one for "r_u" in the undistorted
-    destination image, and one for r_d = D(r_u) in the distorted sensor image.
-    LensFun 0.2.8 scales the r_u by the ratio of the crop factors R_cf < 1,
-    i.e. r_u' = r_u · R_cf.  But it scales r_d (i.e., the sensor image) the
-    same way and this is wrong because it must use r_d' = r_d · D(R_cf).
-
-    BTW, the scaling of r_u is arbitrary.  It just scales the resulting
-    picture.  The above choice of R_cf means that one is probably close to the
-    frame size so that no or little autoscaling is necessary.
-
-    It is important to check this also for models with D(1) ≠ 1, e.g. poly5.
+    destination image.  But is must still work properly.
 
 4. If the aspect ratio of the camera does not match the one of the calibration,
    it must work nevertheless.
