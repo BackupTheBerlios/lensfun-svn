@@ -229,7 +229,7 @@
         <maker>Olympus Optical Co.,Ltd</maker>
         <maker lang="en">Olympus</maker>
         <model>C860L,D360L</model>
-        <model lang="en">C-860 L</model>
+        <model lang="en">C-860L</model>
         <mount>olympusC860</mount>
         <cropfactor>6.563</cropfactor>
     </camera>
@@ -238,10 +238,10 @@
         <maker>Olympus Optical Co.,Ltd</maker>
         <maker lang="en">Olympus</maker>
         <model>C860L,D360L</model>
-        <model lang="en">D-360 L</model>
+        <model lang="en">D-360L</model>
         <!-- The following line is necessary so that LensFun regards this as an
              enry of its own. -->
-        <variant>variant of the C-860 L</variant>
+        <variant>variant of the C-860L</variant>
         <mount>olympusC860</mount>
         <cropfactor>6.563</cropfactor>
     </camera>
