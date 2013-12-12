@@ -113,8 +113,8 @@ def read_location(base_url):
                 for base_url in alternatives:
                     read_location(base_url)
 
-read_location("http://svn.berlios.de/viewvc/lensfun/trunk/data/db/")
-read_location("http://wilson.bronger.org/")
+read_location("http://lensfun.berlios.de/db/")
+read_location("http://wilson.bronger.org/lensfun-db/")
 
 if not locations:
     print("Fatal: No download location found or no newer database available.")
