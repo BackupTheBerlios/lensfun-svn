@@ -1,0 +1,7 @@
+cmake_build/
+config.mak
+out/
+build/PKGBUILD
+build/lensfun.spec
+include/config.h
+include/lensfun/lensfun.h
