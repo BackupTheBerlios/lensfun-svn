@@ -1080,6 +1080,7 @@
             <distortion model="ptlens" focal="135" a="0.00091" b="0.00263" c="-0.00627" />
             <distortion model="ptlens" focal="160" a="-0.00014" b="0.00502" c="-0.00361" />
             <distortion model="ptlens" focal="200" a="0.00255" b="-0.00438" c="0.01481" />
+            <!-- Taken with Canon EOS 5D Mark III -->
             <vignetting model="pa" focal="70" aperture="2.8" distance="1.1" k1="-0.6903" k2="0.4915" k3="-0.4215" />
             <vignetting model="pa" focal="70" aperture="2.8" distance="2.2" k1="-0.7032" k2="0.5010" k3="-0.3688" />
             <vignetting model="pa" focal="70" aperture="2.8" distance="6.6" k1="-0.7044" k2="0.5140" k3="-0.3822" />
