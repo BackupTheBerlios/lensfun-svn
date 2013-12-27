@@ -269,12 +269,12 @@ LF_EXPORT cbool lf_mount_check (lfMount *mount);
 /**
  * @brief Camera data.  Unknown fields are set to NULL.
  *
- * The Maker and Model fields must be filled EXACTLY as they appear in
- * the EXIF data, since this is the only means to detect camera automatically.
- * Some different cameras (e.g. Sony Cybershot) are using same EXIF id info
- * for different models, in which case the Variant field should contain
- * the exact model name, but, alas, we cannot automatically choose between
- * such "twin" cameras.
+ * The Maker and Model fields must be filled EXACTLY as they appear in the EXIF
+ * data, since this is the only means to detect camera automatically
+ * (upper/lowercase is not important, though).  Some different cameras
+ * (e.g. Sony Cybershot) are using same EXIF id info for different models, in
+ * which case the Variant field should contain the exact model name, but, alas,
+ * we cannot automatically choose between such "twin" cameras.
  */
 struct LF_EXPORT lfCamera
 {
