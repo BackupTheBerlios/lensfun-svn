@@ -1321,7 +1321,7 @@
             <tca model="poly3" focal="14.7" vr="1.0005" vb="1.0001" />
             <tca model="poly3" focal="27.2" vr="1.0003" vb="0.9996" />
             <tca model="poly3" focal="49.2" vr="1.0000" vb="0.9990" />
-            <tca model="poly3" focal="27.2" vr="1.0003" vb="0.9996" />
+            <tca model="poly3" focal="70" vr="1.0003" vb="0.9996" />
         </calibration>
     </lens>
 
